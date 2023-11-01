@@ -1,70 +1,72 @@
-'''
-Author: Shawn
-Date: 2023-09-05 14:03:31
-LastEditTime: 2023-10-13 17:41:19
-'''
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License.
-
+# """
+# Author: Shawn
+# Date: 2023-09-05 14:03:31
+# LastEditTime: 2023-10-13 17:41:19
+# """
+import asyncio
 from botbuilder.core import ActivityHandler, TurnContext
 from botbuilder.schema import ChannelAccount
-# from modules.call_process import reply_message_sync
+
+# 假定 SimpleChat.async_reply 是您将要实现的异步方法
 from trendychat.chain.simple_chat import SimpleChat
+import logging
+
+# 设定延时消息列表
+delay_messages = [
+    (5, "請稍待片刻"),
+    (10, "這是一個好問題"),
+    (15, "讓我仔細想一想"),
+    (20, "還在思考中..."),
+    (25, "幾乎完成..."),
+]
 
 
 class MyBot(ActivityHandler):
-    # See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
-
     async def on_message_activity(self, turn_context: TurnContext):
-        print("===>", turn_context.activity.text)
-        # replay_text =  await reply_message_sync(turn_context.activity.text)
-        replay_text = SimpleChat.reply(turn_context.activity.text)
-        await turn_context.send_activity(replay_text)
+        try:
+            user_message = turn_context.activity.text
+
+            # 开始获取答案的异步任务
+            answer_task = asyncio.create_task(
+                self.process_question_and_send_updates(user_message)
+            )
+
+            for delay, message in delay_messages:
+                sleep_task = asyncio.create_task(asyncio.sleep(delay))
+                done, pending = await asyncio.wait(
+                    {answer_task, sleep_task}, return_when=asyncio.FIRST_COMPLETED
+                )
+
+                if answer_task in done:
+                    await turn_context.send_activity(answer_task.result())
+                    return
+                elif sleep_task in done and not answer_task.done():
+                    await turn_context.send_activity(message)
+
+            # 如果答案还没准备好，等待它完成
+            if not answer_task.done():
+                await answer_task
+                await turn_context.send_activity(answer_task.result())
+        except Exception as e:
+            logging.error(f"Error in on_message_activity: {e}", exc_info=True)
+            # 此处可以发送一个自定义的错误消息给用户
+            await turn_context.send_activity("抱歉，處理您的訊息時發生了錯誤。")
+            raise
+
+    async def process_question_and_send_updates(self, question):
+        try:
+            # 异步调用自定义回复函数
+            return await SimpleChat.async_reply(question)
+        except Exception as e:
+            # 在这里添加更详细的错误日志
+            logging.error(
+                f"Error in process_question_and_send_updates: {str(e)}", exc_info=True
+            )
+            raise  # 这里改为重新抛出异常，让 FastAPI 捕获并处理
 
     async def on_members_added_activity(
-        self,
-        members_added: ChannelAccount,
-        turn_context: TurnContext
+        self, members_added: [ChannelAccount], turn_context: TurnContext
     ):
-        for member_added in members_added:
-            if member_added.id != turn_context.activity.recipient.id:
-                await turn_context.send_activity("Hello and welcome!")
-
-
-# ================================================================================================
-# import asyncio
-
-
-# class MyBot(ActivityHandler):
-
-#     async def on_message_activity(self, turn_context: TurnContext):
-#         print("===>", turn_context.activity.text)
-
-#         # 定義一個非同步函數來等待回覆
-#         async def get_reply():
-#             return SimpleChat.reply(turn_context.activity.text)
-
-#         # 定義一個非同步函數來等待5秒並傳送"稍待片刻"的訊息
-#         async def wait_and_notify():
-#             await asyncio.sleep(3)
-#             await turn_context.send_activity("稍待片刻...讓我想想...")
-#             return "稍等"  # 這裡加上返回值
-
-#         # 使用asyncio.gather來等待上述兩個任務
-#         done, pending = await asyncio.wait([get_reply(), wait_and_notify()], return_when=asyncio.FIRST_COMPLETED)
-
-#         # 如果get_reply任務已經完成，取消wait_and_notify任務
-#         for task in pending:
-#             task.cancel()
-
-#         # 檢查已完成的任務
-#         for task in done:
-#             if task == get_reply:
-#                 replay_text = task.result()
-#                 if replay_text:
-#                     await turn_context.send_activity(replay_text)
-
-#     async def on_members_added_activity(self, members_added: ChannelAccount, turn_context: TurnContext):
-#         for member_added in members_added:
-#             if member_added.id != turn_context.activity.recipient.id:
-#                 await turn_context.send_activity("Hello and welcome!")
+        for member in members_added:
+            if member.id != turn_context.activity.recipient.id:
+                await turn_context.send_activity("歡迎使用我們的Bot!")
