@@ -1,5 +1,7 @@
 # Set timezone
 ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 
+pip install uvicorn gunicorn
+
 # Start 
-gunicorn --bind 0.0.0.0 --worker-class aiohttp.worker.GunicornWebWorker --timeout 600 chatbot_app:APP
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 chatbot_app:app
