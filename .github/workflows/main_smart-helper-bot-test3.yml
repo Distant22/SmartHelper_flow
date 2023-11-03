@@ -64,4 +64,4 @@ jobs:
         with:
           app-name: 'smart-helper-bot-test3'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_49AF2681E19347EF949748CB2013BD13 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0956679700BE4316B380D0D095A2E6EE }}
