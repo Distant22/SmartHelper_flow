@@ -27,6 +27,7 @@ def generate_lively_messages():
         "感謝等候，您將會聽到令人振奮的答案！",
         "快要準備好給您驚喜了！",
         "答案正疾速向您飛來！",
+        "答案正趕來，不遠啦！",
         "給我一點點時間，絕對值得等待！",
         "您的問題太有趣了，讓我仔細研究下！",
         "研究中... 這問題真是挑戰性十足！",
@@ -41,9 +42,9 @@ def generate_lively_messages():
     # 從列表中隨機選取五個不同的訊息
     selected_messages = random.sample(messages, 5)
     selected_messages.append(
-        "非常抱歉讓您稍作等待，由於目前使用者眾多，我們的系統暫時達到了服務高峰。我們正在積極擴充服務能力，以便盡快恢復並為您提供所需的服務。感謝您的理解與耐心。"
+        "非常抱歉讓您稍作等待，由於目前使用者眾多，我們的系統暫時達到了服務高峰。若您仍未收到回覆，要麻煩您再次傳訊，感謝您的理解與耐心。"
     )
-    time_cutting = [3, 5, 5, 5, 5, 5]
+    time_cutting = [3, 8, 8, 8, 8, 8]
     # 將選取的訊息與一個隨機數字結合，數字範圍1到5
 
     return [(i, message) for i, message in zip(time_cutting, selected_messages)]
