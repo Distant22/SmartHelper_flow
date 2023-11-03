@@ -10,15 +10,47 @@ from botbuilder.schema import ChannelAccount
 # 假定 SimpleChat.async_reply 是您将要实现的异步方法
 from trendychat.chain.simple_chat import SimpleChat
 import logging
+import random
+
 
 # 设定延时消息列表
-delay_messages = [
-    (2, "請稍待片刻"),
-    (3, "這是一個好問題"),
-    (4, "讓我仔細想一想"),
-    (20, "還在思考中..."),
-    (25, "幾乎完成..."),
-]
+# 定義一個函數來隨機抽取五組訊息，並且每次給予不同的隨機數字以增加活潑感
+def generate_lively_messages():
+    messages = [
+        "稍等一下下，馬上就好！",
+        "好問題！給我點時間來個完美回答～",
+        "嗯～讓我思考一番，給您最佳答案！",
+        "思考模式啟動中，請給我點靈感的時間。",
+        "已經快完成啦，等一下下！",
+        "耐心點，好東西正在醞釀中呢！",
+        "您的請求正在被神速處理中！",
+        "感謝等候，您將會聽到令人振奮的答案！",
+        "快要準備好給您驚喜了！",
+        "答案正疾速向您飛來！",
+        "給我一點點時間，絕對值得等待！",
+        "您的問題太有趣了，讓我仔細研究下！",
+        "研究中... 這問題真是挑戰性十足！",
+        "稍微等一會，驚喜馬上揭曉！",
+        "全力以赴找答案中，不會讓您失望的！",
+        "這個問題好，讓我來好好琢磨一番。",
+        "我們即將揭曉結果，敬請期待！",
+        "安心，我們在為您準備答案。",
+        "您的好奇心即將得到滿足，稍候！",
+        "一切都在掌握中，答案即將到來。",
+    ]
+    # 從列表中隨機選取五個不同的訊息
+    selected_messages = random.sample(messages, 5)
+    selected_messages.append(
+        "非常抱歉讓您稍作等待，由於目前使用者眾多，我們的系統暫時達到了服務高峰。我們正在積極擴充服務能力，以便盡快恢復並為您提供所需的服務。感謝您的理解與耐心。"
+    )
+    time_cutting = [3, 5, 5, 5, 5, 5]
+    # 將選取的訊息與一個隨機數字結合，數字範圍1到5
+
+    return [(i, message) for i, message in zip(time_cutting, selected_messages)]
+
+
+# 呼叫函數並打印結果
+delay_messages = generate_lively_messages()
 
 
 class MyBot(ActivityHandler):
