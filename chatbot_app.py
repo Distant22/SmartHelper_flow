@@ -8,12 +8,12 @@ from botbuilder.core import (
     BotFrameworkAdapter,
 )
 from botbuilder.schema import Activity
-from bot import MyBot
+from bot import MyBot,HistoryQueue
+import time
 import logging
 import traceback
 
 load_dotenv()
-
 
 class AzureBotConfig:
     """Bot Configuration"""
@@ -49,15 +49,22 @@ ADAPTER.on_turn_error = on_error
 
 BOT = MyBot()
 
-# Initialize FastAPI app
+# Initialize FastAPI app and queue
 app = FastAPI()
-
 
 @app.post("/api/messages")
 async def messages(request: Request):
     try:
         body = await request.json()
         activity = Activity().deserialize(body)
+        HistoryQueue.push({
+            "text": body['text'],
+            "time": int(time.time()),
+            "role": "user",
+            "id": body['from']['id'],
+            "url": body.get('service_url',None)
+        })
+        print("\nQueue的儲存結果：\n",HistoryQueue.display(),"\n")
         auth_header = request.headers.get("Authorization", "")
         response = await ADAPTER.process_activity(activity, auth_header, BOT.on_turn)
 
@@ -71,7 +78,6 @@ async def messages(request: Request):
         logging.error(f"Error processing message: {e}", exc_info=True)
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-
 
 if __name__ == "__main__":
     import uvicorn
