@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+
+load_dotenv()
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from botbuilder.core import (
@@ -8,12 +10,12 @@ from botbuilder.core import (
     BotFrameworkAdapter,
 )
 from botbuilder.schema import Activity
-from bot import MyBot,HistoryQueue
+from bot import MyBot  # , HistoryQueue
 import time
 import logging
 import traceback
+from utils import init_chatlog
 
-load_dotenv()
 
 class AzureBotConfig:
     """Bot Configuration"""
@@ -52,19 +54,14 @@ BOT = MyBot()
 # Initialize FastAPI app and queue
 app = FastAPI()
 
+
 @app.post("/api/messages")
 async def messages(request: Request):
     try:
         body = await request.json()
+        # print("body:", body)
         activity = Activity().deserialize(body)
-        HistoryQueue.push({
-            "text": body['text'],
-            "time": int(time.time()),
-            "role": "user",
-            "id": body['from']['id'],
-            "url": body.get('service_url',None)
-        })
-        print("\nQueue的儲存結果：\n",HistoryQueue.display(),"\n")
+
         auth_header = request.headers.get("Authorization", "")
         response = await ADAPTER.process_activity(activity, auth_header, BOT.on_turn)
 
@@ -79,8 +76,10 @@ async def messages(request: Request):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=CONFIG.PORT)
-    # uvicorn.run(app, port=CONFIG.PORT)
+    init_chatlog()
+    # uvicorn.run(app, host="0.0.0.0", port=CONFIG.PORT)
+    uvicorn.run(app, port=CONFIG.PORT)
