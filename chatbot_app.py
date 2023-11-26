@@ -5,12 +5,16 @@ load_dotenv()
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from botbuilder.core import (
+    ConversationState,
+    MemoryStorage,
+    UserState,
     BotFrameworkAdapterSettings,
     TurnContext,
     BotFrameworkAdapter,
 )
 from botbuilder.schema import Activity
-from bot import MyBot  # , HistoryQueue
+#from bot import MyBot  # , HistoryQueue
+from flowbot import FlowBot
 import time
 import logging
 import traceback
@@ -49,7 +53,13 @@ async def on_turn_error(turn_context: TurnContext, error: Exception):
 
 ADAPTER.on_turn_error = on_error
 
-BOT = MyBot()
+MEMORY = MemoryStorage()
+USER_STATE = UserState(MEMORY)
+CONVERSATION_STATE = ConversationState(MEMORY)
+
+
+# 替換成ConversationFlow的Bot
+BOT = FlowBot(CONVERSATION_STATE, USER_STATE)
 
 # Initialize FastAPI app and queue
 app = FastAPI()
@@ -58,6 +68,7 @@ app = FastAPI()
 @app.post("/api/messages")
 async def messages(request: Request):
     try:
+        print("im here")
         body = await request.json()
         # print("body:", body)
         activity = Activity().deserialize(body)
