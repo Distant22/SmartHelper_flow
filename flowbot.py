@@ -53,6 +53,48 @@ async def late_response(
         )
         await turn_context.send_activity(send_msg)  
         return await late_response(turn_context,"handle_document", feedback, flow)
+    
+    
+"""
+實際報表處理程式碼
+"""
+# async def late_response(
+#     turn_context: TurnContext, 
+#     question: str, 
+#     feedback: UserFeedback, 
+#     flow: ConversationFlow
+# ):
+#     if question == "regular":
+#
+#         flow.last_state = State.NONE
+#       
+#         if random.randint(0,1) == 0:
+#             return { "data":"＊執行結果＊", "feedback": False}
+#         else:
+#             return { "data":"＊執行結果＊", "feedback": True }
+#        
+#     elif flow.last_state == State.BUSY:
+#        
+#         send_msg = MessageFactory.text("處理中...")
+#         send_msg.suggested_actions = SuggestedActions(
+#             actions=[
+#                 CardAction(
+#                     title="停止",
+#                     type=ActionTypes.im_back,
+#                     value="停止"
+#                 )
+#             ]
+#         )
+#         await turn_context.send_activity(send_msg)  
+#
+#         # 處理文件後會回傳結果(string)以及是否要跟使用者詢問回饋(boolean)
+#         result = await handle_document(upload_file) # return { data : str , is_feedback : bool }
+#           
+#         # 讓狀態回到非忙碌
+#         flow.last_state = State.NONE
+#
+#         return { data: result['data'], feedback: result['is_feedback'] }
+
 
 class FlowBot(ActivityHandler):
     def __init__(self, conversation_state: ConversationState, user_state: UserState):
@@ -140,7 +182,6 @@ class FlowBot(ActivityHandler):
                     result = await late_response(turn_context,"handle_document", feedback, flow)
                     if not result == None:
                         await turn_context.send_activity(result['data'])
-                    print("result 為",result)
                 except Exception as e:
                     print("Error in handle document:",e)
                     flow.last_state = State.NONE
