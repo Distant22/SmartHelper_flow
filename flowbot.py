@@ -58,42 +58,60 @@ async def late_response(
 """
 實際報表處理程式碼
 """
-# async def late_response(
-#     turn_context: TurnContext, 
-#     question: str, 
-#     feedback: UserFeedback, 
-#     flow: ConversationFlow
-# ):
-#     if question == "regular":
-#
-#         flow.last_state = State.NONE
-#       
-#         if random.randint(0,1) == 0:
-#             return { "data":"＊執行結果＊", "feedback": False}
-#         else:
-#             return { "data":"＊執行結果＊", "feedback": True }
-#        
-#     elif flow.last_state == State.BUSY:
-#        
-#         send_msg = MessageFactory.text("處理中...")
-#         send_msg.suggested_actions = SuggestedActions(
-#             actions=[
-#                 CardAction(
-#                     title="停止",
-#                     type=ActionTypes.im_back,
-#                     value="停止"
-#                 )
-#             ]
-#         )
-#         await turn_context.send_activity(send_msg)  
-#
-#         # 處理文件後會回傳結果(string)以及是否要跟使用者詢問回饋(boolean)
-#         result = await handle_document(upload_file) # return { data : str , is_feedback : bool }
-#           
-#         # 讓狀態回到非忙碌
-#         flow.last_state = State.NONE
-#
-#         return { data: result['data'], feedback: result['is_feedback'] }
+
+async def handle_document(upload_file):
+    """
+    處理報表函式
+    
+    Return:
+    { data : str , is_feedback : bool }
+    """
+    pass
+
+async def handle_question(question: str):
+    """
+    處理問題函式，呼叫 GPT
+    
+    Return:
+    { data : str , is_feedback : bool }
+    """
+    pass
+
+
+async def handle_response(
+    turn_context: TurnContext, 
+    question: str, 
+    file: bytes,
+    feedback: UserFeedback, 
+    flow: ConversationFlow
+):
+    if file == None:
+        
+        result = await handle_question(question)
+
+        return { "data": result['data'], "feedback": result['is_feedback'] }
+       
+    else:
+       
+        send_msg = MessageFactory.text("處理中...")
+        send_msg.suggested_actions = SuggestedActions(
+            actions=[
+                CardAction(
+                    title="停止",
+                    type=ActionTypes.im_back,
+                    value="停止"
+                )
+            ]
+        )
+        await turn_context.send_activity(send_msg)  
+
+        # 處理文件後會回傳結果(string)以及是否要跟使用者詢問回饋(boolean)
+        result = await handle_document(file) 
+          
+        # 讓狀態回到非忙碌
+        flow.last_state = State.NONE
+
+        return { "data": result['data'], "feedback": result['is_feedback'] }
 
 
 class FlowBot(ActivityHandler):
