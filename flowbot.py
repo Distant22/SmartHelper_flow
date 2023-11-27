@@ -25,13 +25,17 @@ async def late_response(
 ):
     # 如果使用者沒有要處理報表 or 處理完了，就跑進來這裡
     if question == "handle_result":
+        
         feedback.handle_document = 0
         flow.last_state = State.NONE
+        
         if random.randint(0,1) == 0:
             return { "data":"＊執行結果＊", "feedback": False}
         else:
             return { "data":"＊執行結果＊", "feedback": True }
+        
     elif flow.last_state == State.BUSY:
+        
         # 設定使用者的回應選項：點“停止”便停下 ； 總共做三個階段
         time.sleep(3)
         feedback.handle_document += 1
@@ -184,7 +188,7 @@ class FlowBot(ActivityHandler):
                     flow.last_state = State.NONE
                     return await turn_context.send_activity("報表停止處理。")
                 else:
-                    return await turn_context.send_activity("在忙別吵啦")
+                    return await turn_context.send_activity("在忙")
             except Exception as e:
                 flow.last_state = State.NONE
                 feedback.handle_document = 0
