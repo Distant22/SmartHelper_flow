@@ -4,4 +4,5 @@ python-dotenv==1.0.0
 fastapi==0.99.1
 botbuilder-core==4.14.4
 motor==3.3.2
+pandas==2.1.4
 git+https://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@github.com/shianshiu/trendychat.git
