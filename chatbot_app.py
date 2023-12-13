@@ -68,9 +68,7 @@ app = FastAPI()
 @app.post("/api/messages")
 async def messages(request: Request):
     try:
-        print("im here")
         body = await request.json()
-        # print("body:", body)
         activity = Activity().deserialize(body)
 
         auth_header = request.headers.get("Authorization", "")
