@@ -58,12 +58,7 @@ class State(ABC):
             for reply in replies
         ]
         return SuggestedActions(actions = action_list)
-
-class Communism(State):
-    """
-    共產主義：傳任何訊息都不理會
-    """
-
+    
 class Liberalism(State):
     """
     自由主義：一傳訊息就馬上視為新的問題

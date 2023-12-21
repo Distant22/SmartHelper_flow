@@ -1,4 +1,4 @@
-from .state import State, Socialism, Communism, Liberalism
+from .state import State, Socialism, Liberalism
 
 class ConversationFlow:
     """
