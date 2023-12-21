@@ -2,6 +2,6 @@
 # Licensed under the MIT License.
 
 from .conversation_flow import ConversationFlow, State
-from .state import State, Socialism, Communism, Liberalism, DefaultResponse, DefaultQuickReply
+from .state import State, Socialism, Liberalism, DefaultResponse, DefaultQuickReply
 
-__all__ = ["ConversationFlow", "State","State", "Socialism", "Communism", "Liberalism","DefaultResponse","DefaultQuickReply"]
+__all__ = ["ConversationFlow", "State","State", "Socialism", "Liberalism","DefaultResponse","DefaultQuickReply"]

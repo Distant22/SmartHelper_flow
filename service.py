@@ -1,17 +1,21 @@
 import os, random, asyncio
-from data_models import DefaultResponse
+from data_models import State, DefaultQuickReply, DefaultResponse
 
 def get_feedback():
     feedback = random.choice([True, False])
-    print("本次是否要求回饋：",feedback)
+    print("本次是否要求使用者回饋：",feedback, "｜是否要調用報表：", not feedback)
     return feedback
 
 def get_history():
     return [""]
 
-async def get_response(text: str):
-    await asyncio.sleep(3)
-    return ["*回覆*"]
+async def get_response(func, params):
+    data = await func(**params)
+    if not data.bot_text == None:
+        result = State.send_response([data.bot_text])
+    elif not data.analysis_description == None:
+        result, result.suggested_actions = State.send_response([data.analysis_description]), State.send_quick_replies(DefaultQuickReply.STOP)
+    return result
     
 def get_current_path(file_name):
     if not file_name:
